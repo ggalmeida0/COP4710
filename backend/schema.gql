@@ -1,0 +1,18 @@
+input User { 
+    Name: String!
+    passwordHash: String!
+    shippingAddress: String
+    phone: String
+    email: Strings!
+    Dob: String
+}
+
+type Mutation {
+    createUser(user: User!)
+    updateUser(userId:ID!)
+    deleteUser(userId:ID!)
+}
+
+type Query {
+    getUser(email:String! passwordHash:String!)
+}
