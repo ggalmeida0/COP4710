@@ -1,18 +1,20 @@
 input User { 
-    Name: String!
-    passwordHash: String!
+    Id: ID 
+    Name: String
+    passwordHash: String
     shippingAddress: String
     phone: String
-    email: Strings!
+    email: String
     Dob: String
 }
 
+
 type Mutation {
-    createUser(user: User!)
-    updateUser(userId:ID!)
-    deleteUser(userId:ID!)
+    signUp(user: User!): Boolean
+    updateUser(user: User!): Boolean
+    deleteUser(userId:ID!): Boolean
 }
 
 type Query {
-    getUser(email:String! passwordHash:String!)
+    logIn(email:String! passwordHash:String!): ID
 }

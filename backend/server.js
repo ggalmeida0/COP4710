@@ -1,7 +1,8 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
-const fs = require('fs');
+const fs = require('fs'); 
+const { signUp, logIn, updateUser, deleteUser} = require('./service')
 
 
 // Construct a schema, using GraphQL schema language
@@ -10,11 +11,10 @@ const schema = buildSchema(buildSchemaQuery);
 
 // The root provides a resolver function for each API endpoint
 const root = {
-  createUser: (user) => CRUD.User.create(user),
-  //To be implemented
-  // getUser: () => CRUD.User.get()
-  // updateUser: () => {},
-  // deleteUser: () => {},
+  signUp: (user) => signUp(user),
+  logIn: (credentials) => logIn(credentials),
+  updateUser: (updatedUser) => updateUser(updatedUser),
+  deleteUser: ({ id }) => deleteUser(id)
 };
 
 const app = express();

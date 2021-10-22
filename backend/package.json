@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "start": "nodemon",
     "test": "jest"
   },
   "keywords": [],
@@ -13,9 +14,10 @@
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
     "graphql": "^15.6.1",
-    "nodemon": "^2.0.14"
+    "pg": "^8.7.1"
   },
   "devDependencies": {
-    "jest": "^27.3.1"
+    "jest": "^27.3.1",
+    "nodemon": "^2.0.14"
   }
 }
