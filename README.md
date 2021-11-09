@@ -1,4 +1,10 @@
 # COP 4710 - Database Design Final Project
 
 ## Installations:
- - Nodejs LTS v14 and NPM (https://nodejs.org/en/)
+ - Python 3 and Pip
+
+## Setup:
+    1) `pip install -r requirements.txt`
+    2) `python3 app.py`
+    3) go to http://127.0.0.1:5000/
+
