@@ -84,6 +84,7 @@ export const Checkout = () => {
         axios.post(GRAPHQL_SERVER,{query:query})
           .catch(error => console.error(error));
         break;
+      default:break;
     }
     const newValidationState = hasNull(paymentInfo,fieldsForValidation);
     setHasValidationError(newValidationState);
@@ -109,7 +110,7 @@ export const Checkout = () => {
   }`;
   React.useEffect(() => axios.post(GRAPHQL_SERVER,{query:query})
       .then(result => setPaymentInfo(result.data.data.getPaymentInfo))
-      .catch(error => console.error(error)),[]);
+      .catch(error => console.error(error)));
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

@@ -1,5 +1,4 @@
 import { createAction } from "@reduxjs/toolkit";
-import * as _ from 'lodash';
 
 export const LOGGED_IN = createAction("$LOGGED_IN");
 export const ADD_TO_CART = createAction("$ADD_TO_CART");
