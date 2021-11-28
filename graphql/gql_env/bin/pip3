@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/home/gabriel/Desktop/Database Design/Final Project/graphql/gql_env/bin/python" "$0" "$@"
-' '''
+#!/home/gabriel/Desktop/COP4710/graphql/gql_env/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
