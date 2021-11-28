@@ -1,0 +1,78 @@
+input UserInput { 
+    username: String 
+    name: String
+    passwordHash: String
+    phone: String
+    email: String
+    dob: String
+}
+
+input PaymentInfoInput {
+    owned_by: String
+    expiration_date: String
+    csv_code: String
+    card_number: String
+    zipcode: String
+    country: String
+    state: String
+    city: String
+    street_address: String
+    name_on_card: String
+}
+
+type PaymentInfo {
+    owned_by: String
+    expiration_date: String
+    csv_code: String
+    card_number: String
+    zipcode: String
+    country: String
+    state: String
+    city: String
+    street_address: String
+    name_on_card: String
+}
+
+
+type Game { 
+    title: String
+    qty: Int
+    genre: String
+    description: String
+    developer: String
+    rating: String
+    cost: String
+}
+
+
+type Order {
+    id: ID
+    date: String
+    total: Float
+    games: [Game]
+}
+
+type Mutation {
+    signUp(user: UserInput!): String
+    updateUser(user: UserInput!): String
+
+    addToCart(username: String! gameTitle: String!): String
+    removeFromCart(username: String! gameTitle: String!): String
+
+    userViewed(username: String! gameTitle: String!): Boolean
+
+    storePaymentInfo(paymentInfo: PaymentInfoInput!): Boolean
+
+}
+
+type Query {
+    login(username:String! passwordHash:String!): Boolean
+
+    getCartContent(username: String!): [Game]
+
+    getGameInfo(gameTitle: String!): Game
+    getAllGames: [Game]
+
+    getPaymentInfo(username: String!): PaymentInfo
+}
+
