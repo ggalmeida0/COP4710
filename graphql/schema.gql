@@ -61,12 +61,12 @@ type Mutation {
     signUp(user: UserInput!): Response
     updateUser(user: UserInput!): String
 
-    addToCart(username: String! gameTitle: String!): String
-    removeFromCart(username: String! gameTitle: String!): String
+    addToCart(username: String! gameTitle: String!): Response
+    removeFromCart(username: String! gameTitle: String!): Response
 
     userViewed(username: String! gameTitle: String!): Boolean
 
-    storePaymentInfo(paymentInfo: PaymentInfoInput!): Boolean
+    storePaymentInfo(paymentInfo: PaymentInfoInput!): Response
 
 }
 

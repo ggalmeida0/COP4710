@@ -6,16 +6,19 @@ import DatePicker from '@mui/lab/DatePicker';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 
-export const PaymentForm = (props) => {
-  const [value, setValue] = React.useState(props.paymentInfo.expiration_date);
+export const PaymentForm = ({paymentInfo, setPaymentInfo, errorMessage}) => {
+  const [value, setValue] = React.useState(paymentInfo.expiration_date);
   const handleDatePicker = (newValue) => {
     setValue(newValue);
-    props.setPaymentInfo({...props.paymentInfo, expiration_date: newValue.toISOString().substring(0,10)})
+    setPaymentInfo({...paymentInfo, expiration_date: newValue.toISOString().substring(0,10)})
   };
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
         Payment method
+      </Typography>
+      <Typography variant="h6" gutterBottom color="red">
+        {errorMessage}
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
@@ -26,8 +29,9 @@ export const PaymentForm = (props) => {
             fullWidth
             autoComplete="cc-name"
             variant="standard"
-            defaultValue={props.paymentInfo.name_on_card}
-            onChange={(event) => props.setPaymentInfo({...props.paymentInfo, name_on_card: event.target.value})}
+            defaultValue={paymentInfo.name_on_card}
+            onChange={(event) => setPaymentInfo({...paymentInfo, name_on_card: event.target.value})}
+            error={errorMessage.length > 0}
           />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -38,8 +42,9 @@ export const PaymentForm = (props) => {
             fullWidth
             autoComplete="cc-number"
             variant="standard"
-            defaultValue={props.paymentInfo.card_number}
-            onChange={(event) => props.setPaymentInfo({...props.paymentInfo, card_number: event.target.value})}
+            defaultValue={paymentInfo.card_number}
+            onChange={(event) => setPaymentInfo({...paymentInfo, card_number: event.target.value})}
+            error={errorMessage.length > 0}
           />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -63,8 +68,9 @@ export const PaymentForm = (props) => {
             fullWidth
             autoComplete="cc-csc"
             variant="standard"
-            defaultValue={props.paymentInfo.csv_code}
-            onChange={(event) => props.setPaymentInfo({...props.paymentInfo, csv_code: event.target.value})}
+            defaultValue={paymentInfo.csv_code}
+            onChange={(event) => setPaymentInfo({...paymentInfo, csv_code: event.target.value})}
+            error={errorMessage.length > 0}
           />
         </Grid>
       </Grid>

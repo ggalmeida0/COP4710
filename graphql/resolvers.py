@@ -61,38 +61,48 @@ def resolveUpdateUser(*_,user):
 @mutations.field("addToCart")
 def resolveAddToCart(*_,username,gameTitle):
     if not usernameExists(username): 
-        return "username does not exist"
+        return {"success":False, "message":"username does not exist"}
     elif not gameExists(gameTitle):
-        return "game does not exist"    
+        return {"success":False, "message":"game does not exist"}
     try:
         with connection:
-            cursor.execute(f"INSERT INTO cart(cust_name, game_name) VALUES({username},{gameTitle})")
-        return "success"
+            cursor.execute(f"INSERT INTO cart(cust_name, game_name) VALUES('{username}','{gameTitle}')")
+        return {"success":True}
     except Exception as e:
-        return f"error occured while inserting into db:\n{e}"
+        return {"success":False, "message":f"error occured while inserting into db:\n{e}"}
 
 @mutations.field("removeFromCart")
 def resolveRemoveFromCart(*_,username,gameTitle):
     if not usernameExists(username): 
-        return "username does not exist"
+        return {"success":False, "message":"username does not exist"}
     elif not gameExists(gameTitle):
-        return "game does not exist"
+        return {"success": False, "message":"game does not exist"}
     try:
         with connection:
             cursor.execute(f"DELETE FROM cart WHERE cust_name = '{username}' AND game_name = '{gameTitle}'")
-        return "success"
+        return {"success":True}
     except Exception as e:
-        return f"error while deleting from db:\n{e}"
+        return {"success":False, "message": f"error while deleting from db:\n{e}"}
 
 @query.field("getCartContent")
 def resolve_getCartContent(*_,username):
     if not usernameExists(username): 
-        return "username does not exist"
+        print(f"user {username} does not exist so can't get cart")
+        return []
     try:
-        cursor.execute(f"SELECT game_name FROM cart WHERE cust_name = '{username}'")
-        return cursor.fetchall()
+        cursor.execute(f"SELECT title, physical_quantity, genre, description, developer, rating, cost FROM cart INNER JOIN game ON title = game_name WHERE cust_name = '{username}'")
+        keys = ("title","qty","genre","description","developer","rating","cost")
+        rawResults = cursor.fetchall()
+        formatedResult = []
+        for rawResult in rawResults:
+            game = {}
+            for i, key in enumerate(keys):
+                game[key] = rawResult[i]
+            formatedResult.append(game)
+        return formatedResult
     except Exception as e:
-        return f"error while selecting from db:\n{e}"
+        print(f"error while selecting from db:\n{e}")
+        return []
 
 # Games API
 
@@ -119,8 +129,7 @@ def resolve_getAllGames(*_):
 @query.field("getPaymentInfo")
 def resolve_getPaymentInfo(*_,username):
     if not usernameExists(username):
-        print(f"error, username {username} doest not exist")
-        return False
+        return {}
     try:
         cursor.execute(f"SELECT * FROM payment_info WHERE owned_by  = '{username}'")
         rawResults = cursor.fetchone()
@@ -129,14 +138,13 @@ def resolve_getPaymentInfo(*_,username):
         return formatedResult
     except Exception as e:
         print(f"error while fetching paymentInfo from db:\n{e}")
-        return []
+        return {}
 
 @mutations.field("storePaymentInfo")
 def resolve_storePaymentInfo(*_,paymentInfo):
     username = paymentInfo["owned_by"]
     if not usernameExists(username):
-        print(f"username {username} is invalid")
-        return False
+        return {"success":False, "message":f"username {username} is invalid"}
     elif hasPaymentInfo(username):
         paymentInfo.pop("owned_by")
         try:
@@ -146,10 +154,9 @@ def resolve_storePaymentInfo(*_,paymentInfo):
                     WHERE owned_by = '{username}'
             """
             with connection: cursor.execute(query)
-            return True
+            return {"success":True}
         except Exception as e:
-            print(f"error while updating payment info from {username}:\n{e}")
-            return False
+            return {"success":False, "message":f"error while updating payment info from {username}:\n{e}"}
     else:
         query = f""" INSERT INTO
                     payment_info({",".join([key for key in paymentInfo])})
@@ -158,7 +165,6 @@ def resolve_storePaymentInfo(*_,paymentInfo):
         try:
             with connection:
                 cursor.execute(query)
-            return True
+            return {"success":True}
         except Exception as e:
-            print(f"error occured while inserting into the db:\n {e}")
-            return False
+            return {"success":False, "message":f"error occured while inserting into the db:\n {e}"}

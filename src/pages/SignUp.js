@@ -16,10 +16,9 @@ import { GRAPHQL_SERVER } from '../env';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { sha256 } from 'js-sha256';
-import { useDispatch} from 'react-redux';
-import { LOGGED_IN } from '../redux/appReducer';
+import { useDispatch, useSelector} from 'react-redux';
+import { CLEAR_ERROR, LOGGED_IN, SET_ERROR } from '../redux/appReducer';
 import {useNavigate} from 'react-router-dom';
-import { validateDateRange } from '@mui/lab/internal/pickers/date-utils';
 
 const theme = createTheme();
 
@@ -27,26 +26,27 @@ const theme = createTheme();
 export default function SignUp() {
   const dispatch = useDispatch();
   const navigateTo = useNavigate();
+  const errorMessage = useSelector((state) => state.errorMessage);
   const [value, setValue] = React.useState();
-  const [errorMessage , updateErrorMessage] = React.useState("");
   const handleDatePicker = (newValue) => setValue(newValue);
   const dataIsValid = (data) => {
     if (data.get("username").length == 0){
-      updateErrorMessage("username can't be empty");
+      dispatch({type:SET_ERROR, payload:"username can't be empty"});
       return false;
     }
     else if (data.get("password").length == 0){
-      updateErrorMessage("password can't be empty");
+      dispatch({type:SET_ERROR, payload:"password can't be empty"});
       return false;
     }
     else if (data.get("email").length == 0){
-      updateErrorMessage("email can't be empty");
+      dispatch({type:SET_ERROR, payload:"email can't be empty"});
       return false;
     }
     else if (data.get('name').length == 0){
-      updateErrorMessage("name can't be empty");
+      dispatch({type:SET_ERROR, payload:"name can't be empty"});
       return false;
     }
+    dispatch({type:CLEAR_ERROR});
     return true;
   }
   const handleSubmit = (event) => {
@@ -71,7 +71,7 @@ export default function SignUp() {
       GRAPHQL_SERVER,
       { query: query }
       ).then((result)=>{
-        if (!result.data.data.signUp.success) updateErrorMessage(result.data.data.signUp.message);
+        if (!result.data.data.signUp.success) dispatch({type:SET_ERROR, payload:result.data.data.signUp.message});
         else {
           dispatch({type: LOGGED_IN, payload:data.get('username')});
           navigateTo('/');

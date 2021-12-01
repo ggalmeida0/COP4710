@@ -14,32 +14,33 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AddressForm } from './AddressForm';
 import { PaymentForm } from './PaymentForm';
 import { Review } from './Review';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link , Navigate} from 'react-router-dom';
 import { GRAPHQL_SERVER } from '../../env';
+import { CLEAR_ERROR, SET_ERROR } from '../../redux/appReducer';
+import { CircularProgress } from '@mui/material';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
 
 const theme = createTheme();
 
-const hasNull = (obj,attrs) => {
-  for (const key in obj) 
-    if (attrs.has(key) && obj[key] === null)  return true;
-  return false;
-}
-
 export const Checkout = () => {
+  const isLoggedIn = useSelector((state) => state.isLoggedIn);
+  const errorMessage = useSelector((state) => state.errorMessage);
+  const dispatch = useDispatch();
   const username = useSelector(state => state.username);
   const [activeStep, setActiveStep] = React.useState(0);
-  const [paymentInfo, setPaymentInfo] = React.useState({});
-  const [hasValidationError, setHasValidationError] = React.useState(false);
+  const [paymentInfo, setPaymentInfo] = React.useState(null);
+  React.useEffect(() => axios.post(GRAPHQL_SERVER,{query:query})
+      .then(result => setPaymentInfo(result.data.data.getPaymentInfo))
+      .catch(error => console.error(error)),[]);
   const getStepContent = (step,paymentInfo,setPaymentInfo) => {
     const props = {
       paymentInfo: paymentInfo,
       setPaymentInfo: setPaymentInfo,
-      hasValidationError: hasValidationError
+      errorMessage:errorMessage
     }
     switch (step) {
       case 0:
@@ -53,14 +54,29 @@ export const Checkout = () => {
     }
   }
 
+  const containInvalidFields = (fields) => {
+    for(let i=0; i<fields.length;i++)
+      if (!paymentInfo[fields[i]] || paymentInfo[fields[i]].length === 0) return true;
+    return false;
+  }
+
   const handleNext = () => {
-    let fieldsForValidation = new Set();
     switch(activeStep){
       case 0:
-        fieldsForValidation = new Set(["street_address","city","state","zipcode","country"]);
+        if (containInvalidFields(["street_address","city","state","zipcode","country"]))
+          dispatch({type:SET_ERROR, payload:"Please fill in all the fields"});
+        else{
+          dispatch({type:CLEAR_ERROR})
+          setActiveStep(activeStep + 1);
+        }
         break;
       case 1:
-        fieldsForValidation = new Set(["card_number","expiration_date","csv_code","name_on_card"])
+        if (containInvalidFields(["card_number","expiration_date","csv_code","name_on_card"]))
+          dispatch({type:SET_ERROR, payload:"Please fill in all the fields"})
+        else{
+          dispatch({type:CLEAR_ERROR})
+          setActiveStep(activeStep + 1);
+        }
         break;
       case 2:
         const query = `
@@ -68,7 +84,7 @@ export const Checkout = () => {
             storePaymentInfo(
               paymentInfo: {
               owned_by: "${username}"
-              card_number: ${paymentInfo.card_number}
+              card_number: "${paymentInfo.card_number}"
               expiration_date: "${paymentInfo.expiration_date}"
               csv_code: "${paymentInfo.csv_code}"
               zipcode: "${paymentInfo.zipcode}"
@@ -78,17 +94,13 @@ export const Checkout = () => {
               street_address: "${paymentInfo.street_address}"
               name_on_card: "${paymentInfo.name_on_card}"
             }
-            )
+            ){success message}
           } 
         `;
         axios.post(GRAPHQL_SERVER,{query:query})
           .catch(error => console.error(error));
         break;
-      default:break;
     }
-    const newValidationState = hasNull(paymentInfo,fieldsForValidation);
-    setHasValidationError(newValidationState);
-    if (!newValidationState) setActiveStep(activeStep + 1);
   };
 
   const handleBack = () => setActiveStep(activeStep - 1);
@@ -108,10 +120,11 @@ export const Checkout = () => {
         name_on_card
       }
   }`;
-  React.useEffect(() => axios.post(GRAPHQL_SERVER,{query:query})
-      .then(result => setPaymentInfo(result.data.data.getPaymentInfo))
-      .catch(error => console.error(error)));
   return (
+    !isLoggedIn ? <Navigate to="/login" replace={true}/>
+    :
+    !paymentInfo ? <CircularProgress/>
+    :
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar

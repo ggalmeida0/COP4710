@@ -3,11 +3,14 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 
-export const AddressForm = (props) => {
+export const AddressForm = ({ paymentInfo, setPaymentInfo, errorMessage }) => {
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
         Shipping address
+      </Typography>
+      <Typography variant="h6" gutterBottom color="red">
+        {errorMessage}
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12}>
@@ -18,8 +21,9 @@ export const AddressForm = (props) => {
             label="Address line"
             fullWidth
             variant="standard"
-            defaultValue={props.paymentInfo.street_address}
-            onChange={(event) => props.setPaymentInfo({...props.paymentInfo, street_address: event.target.value})}
+            defaultValue={paymentInfo.street_address}
+            onChange={(event) => setPaymentInfo({...paymentInfo, street_address: event.target.value})}
+            error = {errorMessage.length > 0}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -30,8 +34,9 @@ export const AddressForm = (props) => {
             label="City"
             fullWidth
             variant="standard"
-            defaultValue={props.paymentInfo.city}
-            onChange={(event) => props.setPaymentInfo({...props.paymentInfo, city: event.target.value})}
+            defaultValue={paymentInfo.city}
+            onChange={(event) => setPaymentInfo({...paymentInfo, city: event.target.value})}
+            error = {errorMessage.length > 0}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -41,8 +46,9 @@ export const AddressForm = (props) => {
             label="State/Province/Region"
             fullWidth
             variant="standard"
-            defaultValue={props.paymentInfo.state}
-            onChange={(event) => props.setPaymentInfo({...props.paymentInfo, state: event.target.value})}
+            defaultValue={paymentInfo.state}
+            onChange={(event) => setPaymentInfo({...paymentInfo, state: event.target.value})}
+            error = {errorMessage.length > 0}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -54,8 +60,9 @@ export const AddressForm = (props) => {
             fullWidth
             autoComplete="shipping postal-code"
             variant="standard"
-            defaultValue={props.paymentInfo.zipcode}
-            onChange={(event) => props.setPaymentInfo({...props.paymentInfo, zipcode: event.target.value})}
+            defaultValue={paymentInfo.zipcode}
+            onChange={(event) => setPaymentInfo({...paymentInfo, zipcode: event.target.value})}
+            error = {errorMessage.length > 0}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -67,8 +74,9 @@ export const AddressForm = (props) => {
             fullWidth
             autoComplete="shipping country"
             variant="standard"
-            defaultValue={props.paymentInfo.country}
-            onChange={(event) => props.setPaymentInfo({...props.paymentInfo, country: event.target.value})}
+            defaultValue={paymentInfo.country}
+            onChange={(event) => setPaymentInfo({...paymentInfo, country: event.target.value})}
+            error = {errorMessage.length > 0}
           />
         </Grid>
       </Grid>

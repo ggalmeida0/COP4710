@@ -22,7 +22,7 @@ import { GRAPHQL_SERVER } from '../env'
 import { CircularProgress } from '@mui/material';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import { ADD_TO_CART, REMOVE_FROM_CART } from '../redux/appReducer';
+import { ADD_TO_CART, REMOVE_FROM_CART, SET_CART_STATE } from '../redux/appReducer';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Drawer from '@mui/material/Drawer';
@@ -103,30 +103,47 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const DashboardContent = () => {
   const isLoggedIn = useSelector((state) => state.isLoggedIn);
   const cartItems = useSelector((state) => state.cartItems);
+  const username = useSelector(state => state.username);
+  const dispatch = useDispatch();
   const navigateTo = useNavigate();
   const [open, setOpen] = React.useState(false);
   const [games, setGames] = React.useState([]);
   const toggleDrawer = () => {
     setOpen(!open);
   };
-  const query = `
-    {
-      getAllGames {
-        title
-        genre
-        description
-        rating
-        cost
-      }
-    } 
-  `
-  if(games.length === 0){
-    axios.post(GRAPHQL_SERVER,{query:query})
-      .then((result) => setGames(result.data.data.getAllGames))
-      .catch((error) => console.error(error));
-  }
+  const fetchInitData = () => {
+    const query = `
+      {
+        getAllGames {
+          title
+          genre
+          description
+          rating
+          cost
+        }
+        getCartContent(username: "${username}")
+        {
+            title
+            genre
+            description
+            rating
+            cost
+        }
+      } 
+    `
+    if(games.length === 0){
+      axios.post(GRAPHQL_SERVER,{query:query})
+        .then((result) => {
+          setGames(result.data.data.getAllGames);
+          dispatch({type:SET_CART_STATE, payload:result.data.data.getCartContent})
+        })
+        .catch((error) => console.error(error));
+  }};
+  React.useEffect(fetchInitData,[]);
   return (
     !isLoggedIn ? <Navigate to="/login" replace={true}/>
+    :
+    !cartItems ? <CircularProgress/>
     :
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: 'flex' }}>
@@ -134,7 +151,7 @@ const DashboardContent = () => {
         <AppBar position="absolute" open={open}>
           <Toolbar
             sx={{
-              pr: '24px', // keep right padding when drawer closed
+              pr: '24px', 
             }}
           >
             <IconButton
