@@ -21,8 +21,12 @@ def resolveLogin(*_,username,passwordHash):
 
 @mutations.field("signUp")
 def resolveSignUp(*_,user):
-    if usernameExists(user["username"]):
-        return "username already exists"
+    if len(user["username"]) == 0:
+        return {"success":False, "message":"username cannot be empty"}
+    elif usernameExists(user["username"]):
+        return {"success":False, "message":"username exists"}
+    elif len(user["passwordHash"]) == 0:
+        return {"success":False, "message": "password cannot be empty"}
     query = f"""INSERT INTO
                 customer({",".join([key for key in user])})
                 VALUES({",".join(["'" + user[key] + "'" for key in user])})
@@ -30,9 +34,10 @@ def resolveSignUp(*_,user):
     try:
         with connection:
             cursor.execute(query)
-        return "success"
+        return {"success":True} 
     except Exception as e:
-        return f"error occured while inserting into the db: {e}"
+        print(f"error occured while inserting into the db: {e}")
+        return {"success":False,"message":"There was an error with sign up"}
 
 @mutations.field("updateUser")
 def resolveUpdateUser(*_,user):

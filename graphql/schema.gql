@@ -52,8 +52,13 @@ type Order {
     games: [Game]
 }
 
+type Response {
+    success: Boolean!
+    message: String
+}
+
 type Mutation {
-    signUp(user: UserInput!): String
+    signUp(user: UserInput!): Response
     updateUser(user: UserInput!): String
 
     addToCart(username: String! gameTitle: String!): String
