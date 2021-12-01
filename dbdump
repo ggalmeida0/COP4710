@@ -1,0 +1,474 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.18 (Ubuntu 10.18-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.18 (Ubuntu 10.18-0ubuntu0.18.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: cart; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.cart (
+    cust_name character varying(60) NOT NULL,
+    game_name character varying(60) NOT NULL
+);
+
+
+ALTER TABLE public.cart OWNER TO postgres;
+
+--
+-- Name: customer; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.customer (
+    username character varying(60) NOT NULL,
+    passwordhash character(64),
+    shippingaddress character varying(60),
+    phone character varying(15),
+    email character varying(60),
+    dob date,
+    name character varying(60),
+    city character varying(30),
+    state character varying(30),
+    zip character(5)
+);
+
+
+ALTER TABLE public.customer OWNER TO postgres;
+
+--
+-- Name: game; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.game (
+    title character varying(60) NOT NULL,
+    physical_quantity integer,
+    genre character varying(20),
+    description text,
+    developer character varying(60),
+    rating integer,
+    cost money
+);
+
+
+ALTER TABLE public.game OWNER TO postgres;
+
+--
+-- Name: order_contains; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.order_contains (
+    is_physical boolean,
+    order_id integer NOT NULL,
+    game character varying(60) NOT NULL,
+    cost_when_ordered money,
+    game_title_when_ordered character varying(60)
+);
+
+
+ALTER TABLE public.order_contains OWNER TO postgres;
+
+--
+-- Name: orders; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.orders (
+    order_id integer NOT NULL,
+    date_placed date,
+    total money,
+    ordered_by character varying(60),
+    card_user character varying(60) NOT NULL,
+    card_number character(16) NOT NULL,
+    tax_rate double precision,
+    total_after_tax money
+);
+
+
+ALTER TABLE public.orders OWNER TO postgres;
+
+--
+-- Name: orders_order_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.orders_order_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.orders_order_id_seq OWNER TO postgres;
+
+--
+-- Name: orders_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.orders_order_id_seq OWNED BY public.orders.order_id;
+
+
+--
+-- Name: payment_info; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.payment_info (
+    owned_by character varying(60) NOT NULL,
+    expiration_date date,
+    csv_code character(5),
+    card_number character(16) NOT NULL,
+    zipcode character(5),
+    country character varying(60),
+    state character varying(60),
+    city character varying(60),
+    street_address character varying(100),
+    name_on_card character varying(60)
+);
+
+
+ALTER TABLE public.payment_info OWNER TO postgres;
+
+--
+-- Name: studio; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.studio (
+    name character varying(30) NOT NULL,
+    description text,
+    located character varying(60)
+);
+
+
+ALTER TABLE public.studio OWNER TO postgres;
+
+--
+-- Name: view; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.view (
+    username character varying(60) NOT NULL,
+    game character varying(60) NOT NULL
+);
+
+
+ALTER TABLE public.view OWNER TO postgres;
+
+--
+-- Name: orders order_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders ALTER COLUMN order_id SET DEFAULT nextval('public.orders_order_id_seq'::regclass);
+
+
+--
+-- Data for Name: cart; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.cart (cust_name, game_name) FROM stdin;
+Ty1983	Maryo
+Ty1983	Far Away Island 2
+Ty1983	Sky Rim
+LimeCat	Greedy Assassin
+LimeCat	Radioactive Dragons
+BubbleInferno	Oblivious War
+\.
+
+
+--
+-- Data for Name: customer; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer (username, passwordhash, shippingaddress, phone, email, dob, name, city, state, zip) FROM stdin;
+Ty1983	\N	5231 Seaside Bridge Road	4365554983	tybar@ymail.com	1983-03-15	Tyler Barclay	Ellijay	GA	35929
+BubbleInferno	\N	4963 Roosevelt Lane	9095553920	binferno@Gahoo.org	1992-12-25	Tina Lowe	Los Angeles	CA	90017
+Faithpl	\N	579 Geraldine Lane	6465552362	edlawson@Gmail.com	1966-11-15	Edward Lawson	New York	NY	10007
+LimeCat	\N	1437 Essex Court	8025556648	limecat123@gmail.com	1996-04-22	Brenda C Mullins	Perkinsville	VT	05151
+ScoobyEmu	\N	3965 Arbutus Drive	3065558636	gsmith1981@gmail.com	1981-12-04	Gregory Smith	Miami Springs	FL	33166
+\.
+
+
+--
+-- Data for Name: game; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.game (title, physical_quantity, genre, description, developer, rating, cost) FROM stdin;
+Maryo	32	Platformer	Adventures as an Italian Plumber who can only walk towards the East	Notendo	96	$59.99
+Zedla	424	Action-Adventure	Like a birds-eye view of maryo but more confuzing	Notendo	81	$59.99
+Far Away Island 2	723	First-person shooter	Fight your way through this *other* tiny island	Noobisoft	65	$59.99
+Sky Rim	267	Space opera	As the chosen one, you must save your home planet from giant mechs	Rocksville Softworks LLC.	98	$59.99
+Far Away Island	622	First-person shooter	Fight your way through this tiny island	Noobisoft	89	$39.99
+Oblivious War	2236	First-person rpg	Mages and Dragons attack!	Rocksville Softworks LLC.	65	$39.99
+Radioactive Dragons	1536	First-person rpg	Survive the onslaught of radioactive dragons	Rocksville Softworks LLC.	43	$19.95
+Metro Droid	235	Action-Adventure	Side scrolling battle against an alien invasion	Notendo	74	$29.95
+Greedy Assassin	1834	Stealth	A sneaky assassin who is also greedy	Noobisoft	32	$79.95
+\.
+
+
+--
+-- Data for Name: order_contains; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.order_contains (is_physical, order_id, game, cost_when_ordered, game_title_when_ordered) FROM stdin;
+f	7	Oblivious War	$39.99	Oblivious War
+f	7	Far Away Island	$39.99	Far Away Island
+t	8	Maryo	$59.99	Maryo
+t	9	Zedla	$59.99	Zedla
+t	10	Zedla	$59.99	Zedla
+t	10	Metro Droid	$59.99	Metro Droid
+t	10	Radioactive Dragons	$49.99	Radioactive Dragons
+t	10	Maryo	$59.99	Maryo
+f	11	Sky Rim	$59.99	Sky Rim
+f	11	Greedy Assassin	$59.99	Greedy Assassin
+\.
+
+
+--
+-- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.orders (order_id, date_placed, total, ordered_by, card_user, card_number, tax_rate, total_after_tax) FROM stdin;
+7	2021-03-24	$79.98	Ty1983	Ty1983	6827178987892578	0.0700000000000000067	$85.58
+8	2020-05-21	$59.99	BubbleInferno	BubbleInferno	9693960390909630	0.0599999999999999978	$63.59
+9	2020-07-07	$59.99	Faithpl	Faithpl	1121223233434454	0.0700000000000000067	$64.19
+10	2021-01-21	$229.96	ScoobyEmu	ScoobyEmu	5892875837891587	0.0599999999999999978	$243.76
+11	2021-06-03	$119.98	ScoobyEmu	ScoobyEmu	5892875837891587	0.0599999999999999978	$127.18
+\.
+
+
+--
+-- Data for Name: payment_info; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.payment_info (owned_by, expiration_date, csv_code, card_number, zipcode, country, state, city, street_address, name_on_card) FROM stdin;
+Ty1983	2021-03-15	692  	1859385414891589	35929	United States	GA	Ellijay	5231 Seaside Bridge Road	Tyler Barclay
+BubbleInferno	2022-06-23	364  	9693960390909630	90017	United States	CA	Los Angeles	4963 Roosevelt Lane	Tina Lowe
+Ty1983	2025-03-15	112  	6827178987892578	35929	United States	GA	Ellijay	5231 Seaside Bridge Road	Tyler Barclay
+Faithpl	2021-07-04	364  	1121223233434454	10007	United States	NY	New York	1437 Essex Court	Edward Lawson
+ScoobyEmu	2023-04-12	757  	5892875837891587	33166	United States	FL	Miami Springs	3965 Arbutus Drive	Gregory Smith
+\.
+
+
+--
+-- Data for Name: studio; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.studio (name, description, located) FROM stdin;
+Noobisoft	We keep making them because you keep buying them	Somewhere in Canada
+Notendo	The same characters, different situations	Tokyo, Japan
+Rocksville Softworks LLC.	Games that can run on any platform, including your refrigerator	Bethesda, Maryland
+\.
+
+
+--
+-- Data for Name: view; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.view (username, game) FROM stdin;
+Ty1983	Maryo
+Ty1983	Far Away Island 2
+Ty1983	Far Away Island
+Ty1983	Sky Rim
+Ty1983	Radioactive Dragons
+LimeCat	Radioactive Dragons
+LimeCat	Greedy Assassin
+LimeCat	Oblivious War
+LimeCat	Maryo
+BubbleInferno	Maryo
+BubbleInferno	Oblivious War
+ScoobyEmu	Maryo
+ScoobyEmu	Metro Droid
+ScoobyEmu	Zedla
+Faithpl	Zedla
+Ty1983	Oblivious War
+ScoobyEmu	Sky Rim
+ScoobyEmu	Radioactive Dragons
+ScoobyEmu	Oblivious War
+ScoobyEmu	Greedy Assassin
+\.
+
+
+--
+-- Name: orders_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.orders_order_id_seq', 11, true);
+
+
+--
+-- Name: cart cart_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cart
+    ADD CONSTRAINT cart_pkey PRIMARY KEY (cust_name, game_name);
+
+
+--
+-- Name: customer customer_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer
+    ADD CONSTRAINT customer_pkey PRIMARY KEY (username);
+
+
+--
+-- Name: game game_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.game
+    ADD CONSTRAINT game_pkey PRIMARY KEY (title);
+
+
+--
+-- Name: order_contains order_contains_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_contains
+    ADD CONSTRAINT order_contains_pkey PRIMARY KEY (order_id, game);
+
+
+--
+-- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_pkey PRIMARY KEY (order_id);
+
+
+--
+-- Name: payment_info payment_info_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.payment_info
+    ADD CONSTRAINT payment_info_pkey PRIMARY KEY (owned_by, card_number);
+
+
+--
+-- Name: studio studio_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.studio
+    ADD CONSTRAINT studio_pkey PRIMARY KEY (name);
+
+
+--
+-- Name: view view_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.view
+    ADD CONSTRAINT view_pkey PRIMARY KEY (username, game);
+
+
+--
+-- Name: cart cart_cust_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cart
+    ADD CONSTRAINT cart_cust_name_fkey FOREIGN KEY (cust_name) REFERENCES public.customer(username) ON DELETE CASCADE;
+
+
+--
+-- Name: cart cart_game_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cart
+    ADD CONSTRAINT cart_game_name_fkey FOREIGN KEY (game_name) REFERENCES public.game(title) ON DELETE CASCADE;
+
+
+--
+-- Name: game game_developer_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.game
+    ADD CONSTRAINT game_developer_fkey FOREIGN KEY (developer) REFERENCES public.studio(name);
+
+
+--
+-- Name: order_contains order_contains_game_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_contains
+    ADD CONSTRAINT order_contains_game_fkey FOREIGN KEY (game) REFERENCES public.game(title);
+
+
+--
+-- Name: order_contains order_contains_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_contains
+    ADD CONSTRAINT order_contains_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(order_id) ON DELETE CASCADE;
+
+
+--
+-- Name: orders orders_card_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_card_user_fkey FOREIGN KEY (card_user, card_number) REFERENCES public.payment_info(owned_by, card_number);
+
+
+--
+-- Name: orders orders_ordered_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_ordered_by_fkey FOREIGN KEY (ordered_by) REFERENCES public.customer(username);
+
+
+--
+-- Name: payment_info payment_info_owned_by_fkey1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.payment_info
+    ADD CONSTRAINT payment_info_owned_by_fkey1 FOREIGN KEY (owned_by) REFERENCES public.customer(username) ON DELETE CASCADE;
+
+
+--
+-- Name: view view_game_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.view
+    ADD CONSTRAINT view_game_fkey FOREIGN KEY (game) REFERENCES public.game(title);
+
+
+--
+-- Name: view view_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.view
+    ADD CONSTRAINT view_username_fkey FOREIGN KEY (username) REFERENCES public.customer(username);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
