@@ -20,6 +20,12 @@ input PaymentInfoInput {
     name_on_card: String
 }
 
+input OrderInput {
+    ordered_by:String
+    total: Float
+    games: [String]
+}
+
 type PaymentInfo {
     owned_by: String
     expiration_date: String
@@ -33,7 +39,6 @@ type PaymentInfo {
     name_on_card: String
 }
 
-
 type Game { 
     title: String
     qty: Int
@@ -45,12 +50,6 @@ type Game {
 }
 
 
-type Order {
-    id: ID
-    date: String
-    total: Float
-    games: [Game]
-}
 
 type Response {
     success: Boolean!
@@ -64,10 +63,11 @@ type Mutation {
     addToCart(username: String! gameTitle: String!): Response
     removeFromCart(username: String! gameTitle: String!): Response
 
-    userViewed(username: String! gameTitle: String!): Boolean
-
     storePaymentInfo(paymentInfo: PaymentInfoInput!): Response
 
+    clearCart(username: String!): Response
+
+    storeOrder(order: OrderInput!): ID
 }
 
 type Query {
@@ -75,7 +75,6 @@ type Query {
 
     getCartContent(username: String!): [Game]
 
-    getGameInfo(gameTitle: String!): Game
     getAllGames: [Game]
 
     getPaymentInfo(username: String!): PaymentInfo

@@ -33,7 +33,6 @@ export function appReducer(state = initialState, action) {
     case CLEAR_ERROR:
       return {...state, errorMessage: ""}
     case SET_CART_STATE:
-      console.log(action.payload);
       return {...state, cartItems:action.payload}
     default:
       return state

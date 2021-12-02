@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { Link , Navigate} from 'react-router-dom';
 import { GRAPHQL_SERVER } from '../../env';
-import { CLEAR_ERROR, SET_ERROR } from '../../redux/appReducer';
+import { CLEAR_ERROR, SET_CART_STATE, SET_ERROR } from '../../redux/appReducer';
 import { CircularProgress } from '@mui/material';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
@@ -26,13 +26,20 @@ const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
 const theme = createTheme();
 
+export const sumPrices = (cartItems) => 
+    cartItems.length > 0 ? 
+      cartItems.map(item => parseFloat(item.cost.slice(1))).reduce((item1,item2) => item1 + item2)
+    : 0;
+
 export const Checkout = () => {
   const isLoggedIn = useSelector((state) => state.isLoggedIn);
+  const cartItems = useSelector(state => state.cartItems);
   const errorMessage = useSelector((state) => state.errorMessage);
   const dispatch = useDispatch();
   const username = useSelector(state => state.username);
   const [activeStep, setActiveStep] = React.useState(0);
   const [paymentInfo, setPaymentInfo] = React.useState(null);
+  const [orderId, setOrderId] = React.useState(null);
   React.useEffect(() => axios.post(GRAPHQL_SERVER,{query:query})
       .then(result => setPaymentInfo(result.data.data.getPaymentInfo))
       .catch(error => console.error(error)),[]);
@@ -40,7 +47,8 @@ export const Checkout = () => {
     const props = {
       paymentInfo: paymentInfo,
       setPaymentInfo: setPaymentInfo,
-      errorMessage:errorMessage
+      errorMessage:errorMessage,
+      sumPrices:sumPrices
     }
     switch (step) {
       case 0:
@@ -95,10 +103,22 @@ export const Checkout = () => {
               name_on_card: "${paymentInfo.name_on_card}"
             }
             ){success message}
+
+            storeOrder(order:
+            {
+              ordered_by:"${username}"
+              total:${sumPrices(cartItems)}
+              games: ["${cartItems.map(item => item.title).join('","')}"]
+            })
+
+            clearCart(username: "${username}") {success}
           } 
         `;
         axios.post(GRAPHQL_SERVER,{query:query})
+          .then(result => setOrderId(result.data.data.storeOrder))
           .catch(error => console.error(error));
+        dispatch({type:SET_CART_STATE, payload: null})
+        setActiveStep(activeStep + 1);
         break;
     }
   };
@@ -158,12 +178,13 @@ export const Checkout = () => {
           </Stepper>
           <React.Fragment>
             {activeStep === steps.length ? (
+              orderId === null ? <CircularProgress/> :
               <React.Fragment>
                 <Typography variant="h5" gutterBottom>
                   Thank you for your order.
                 </Typography>
                 <Typography variant="subtitle1">
-                  Your order number is #2001539. We have emailed your order
+                  Your order number is #{orderId}. We have emailed your order
                   confirmation, and will send you an update when your order has
                   shipped.
                 </Typography>

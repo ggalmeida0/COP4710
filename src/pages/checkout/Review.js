@@ -5,12 +5,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import { useSelector } from 'react-redux';
 
-export const Review = (props) => {
+
+export const Review = ({sumPrices}) => {
   const cartItems = useSelector(state => state.cartItems);
-  const sumPrices = (cartItems) => 
-    cartItems.length > 0 ? 
-      cartItems.map(item => parseFloat(item.cost.slice(1))).reduce((item1,item2) => item1 + item2)
-    : 0;
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
