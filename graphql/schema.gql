@@ -12,11 +12,6 @@ input PaymentInfoInput {
     expiration_date: String
     csv_code: String
     card_number: String
-    zipcode: String
-    country: String
-    state: String
-    city: String
-    street_address: String
     name_on_card: String
 }
 
@@ -24,6 +19,22 @@ input OrderInput {
     ordered_by:String
     total: Float
     games: [String]
+    zip: String
+    country: String
+    state: String
+    city: String
+    street_address:String
+}
+
+type Order {
+    ordered_by:String
+    total: Float
+    games: [String]
+    zip: String
+    country: String
+    state: String
+    city: String
+    street_address:String
 }
 
 type PaymentInfo {
@@ -31,11 +42,6 @@ type PaymentInfo {
     expiration_date: String
     csv_code: String
     card_number: String
-    zipcode: String
-    country: String
-    state: String
-    city: String
-    street_address: String
     name_on_card: String
 }
 
@@ -58,7 +64,6 @@ type Response {
 
 type Mutation {
     signUp(user: UserInput!): Response
-    updateUser(user: UserInput!): String
 
     addToCart(username: String! gameTitle: String!): Response
     removeFromCart(username: String! gameTitle: String!): Response
@@ -78,5 +83,7 @@ type Query {
     getAllGames: [Game]
 
     getPaymentInfo(username: String!): PaymentInfo
+
+    getLatestOrder(username:String!): Order
 }
 

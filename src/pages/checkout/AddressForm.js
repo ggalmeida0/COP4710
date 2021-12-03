@@ -60,8 +60,8 @@ export const AddressForm = ({ paymentInfo, setPaymentInfo, errorMessage }) => {
             fullWidth
             autoComplete="shipping postal-code"
             variant="standard"
-            defaultValue={paymentInfo.zipcode}
-            onChange={(event) => setPaymentInfo({...paymentInfo, zipcode: event.target.value})}
+            defaultValue={paymentInfo.zip}
+            onChange={(event) => setPaymentInfo({...paymentInfo, zip: event.target.value})}
             error = {errorMessage.length > 0}
           />
         </Grid>

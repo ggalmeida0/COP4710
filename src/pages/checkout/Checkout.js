@@ -41,7 +41,7 @@ export const Checkout = () => {
   const [paymentInfo, setPaymentInfo] = React.useState(null);
   const [orderId, setOrderId] = React.useState(null);
   React.useEffect(() => axios.post(GRAPHQL_SERVER,{query:query})
-      .then(result => setPaymentInfo(result.data.data.getPaymentInfo))
+      .then(result => setPaymentInfo({...result.data.data.getPaymentInfo, ...result.data.data.getLatestOrder}))
       .catch(error => console.error(error)),[]);
   const getStepContent = (step,paymentInfo,setPaymentInfo) => {
     const props = {
@@ -71,7 +71,7 @@ export const Checkout = () => {
   const handleNext = () => {
     switch(activeStep){
       case 0:
-        if (containInvalidFields(["street_address","city","state","zipcode","country"]))
+        if (containInvalidFields(["street_address","city","state","zip","country"]))
           dispatch({type:SET_ERROR, payload:"Please fill in all the fields"});
         else{
           dispatch({type:CLEAR_ERROR})
@@ -95,11 +95,6 @@ export const Checkout = () => {
               card_number: "${paymentInfo.card_number}"
               expiration_date: "${paymentInfo.expiration_date}"
               csv_code: "${paymentInfo.csv_code}"
-              zipcode: "${paymentInfo.zipcode}"
-              country: "${paymentInfo.country}"
-              state: "${paymentInfo.state}"
-              city: "${paymentInfo.city}"
-              street_address: "${paymentInfo.street_address}"
               name_on_card: "${paymentInfo.name_on_card}"
             }
             ){success message}
@@ -109,6 +104,11 @@ export const Checkout = () => {
               ordered_by:"${username}"
               total:${sumPrices(cartItems)}
               games: ["${cartItems.map(item => item.title).join('","')}"]
+              zip: "${paymentInfo.zip}"
+              country: "${paymentInfo.country}"
+              state: "${paymentInfo.state}"
+              city: "${paymentInfo.city}"
+              street_address: "${paymentInfo.street_address}"
             })
 
             clearCart(username: "${username}") {success}
@@ -132,12 +132,15 @@ export const Checkout = () => {
         card_number
         expiration_date
         csv_code
-        zipcode
+        name_on_card
+      }
+      getLatestOrder(username: "${username}")
+      {
+        zip
         country
         state
         city
         street_address
-        name_on_card
       }
   }`;
   return (
