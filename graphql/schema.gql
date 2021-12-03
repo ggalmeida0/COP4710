@@ -7,14 +7,6 @@ input UserInput {
     dob: String
 }
 
-input PaymentInfoInput {
-    owned_by: String
-    expiration_date: String
-    csv_code: String
-    card_number: String
-    name_on_card: String
-}
-
 input OrderInput {
     ordered_by:String
     total: Float
@@ -24,6 +16,10 @@ input OrderInput {
     state: String
     city: String
     street_address:String
+    expiration_date: String
+    csv_code: String
+    card_number: String
+    name_on_card: String
 }
 
 type Order {
@@ -35,10 +31,6 @@ type Order {
     state: String
     city: String
     street_address:String
-}
-
-type PaymentInfo {
-    owned_by: String
     expiration_date: String
     csv_code: String
     card_number: String
@@ -68,8 +60,6 @@ type Mutation {
     addToCart(username: String! gameTitle: String!): Response
     removeFromCart(username: String! gameTitle: String!): Response
 
-    storePaymentInfo(paymentInfo: PaymentInfoInput!): Response
-
     clearCart(username: String!): Response
 
     storeOrder(order: OrderInput!): ID
@@ -81,8 +71,6 @@ type Query {
     getCartContent(username: String!): [Game]
 
     getAllGames: [Game]
-
-    getPaymentInfo(username: String!): PaymentInfo
 
     getLatestOrder(username:String!): Order
 }

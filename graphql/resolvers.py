@@ -109,79 +109,42 @@ def resolve_getAllGames(*_):
         return []
 
 
-#Payment Info API:
-
-@query.field("getPaymentInfo")
-def resolve_getPaymentInfo(*_,username):
-    if not usernameExists(username):
-        return {}
-    try:
-        query = f"""
-        SELECT owned_by,
-               expiration_date,
-               csv_code,
-               card_number,
-               name_on_card
-        FROM payment_info WHERE owned_by  = '{username}'
-        """
-        cursor.execute(query)
-        rawResults = cursor.fetchone()
-        keys = ("owned_by","expiration_date","csv_code","card_number","name_on_card")
-        formatedResult = dict(zip(keys,rawResults))
-        return formatedResult
-    except Exception as e:
-        print(f"error while fetching paymentInfo from db:\n{e}")
-        return {}
-
-@mutations.field("storePaymentInfo")
-def resolve_storePaymentInfo(*_,paymentInfo):
-    username = paymentInfo["owned_by"]
-    if not usernameExists(username):
-        return {"success":False, "message":f"username {username} is invalid"}
-    elif hasPaymentInfo(username):
-        paymentInfo.pop("owned_by")
-        try:
-            query = f""" UPDATE payment_info
-                    SET ({",".join([key for key in paymentInfo])})
-                    = ({",".join(["'" + paymentInfo[key] + "'" for key in paymentInfo])})
-                    WHERE owned_by = '{username}'
-            """
-            with connection: cursor.execute(query)
-            return {"success":True}
-        except Exception as e:
-            return {"success":False, "message":f"error while updating payment info from {username}:\n{e}"}
-    else:
-        query = f""" INSERT INTO
-                    payment_info({",".join([key for key in paymentInfo])})
-                    VALUES({",".join(["'" + paymentInfo[key] + "'" for key in paymentInfo])})
-        """
-        try:
-            with connection:
-                cursor.execute(query)
-            return {"success":True}
-        except Exception as e:
-            return {"success":False, "message":f"error occured while inserting into the db:\n {e}"}
-
 @mutations.field("storeOrder")
 def resolve_storeOrder(*_,order):
     TAX_RATE = 0.1
     try:
         query = f"""
-        WITH card_info AS
-        (SELECT card_number, name_on_card FROM payment_info WHERE owned_by = '{order["ordered_by"]}' LIMIT 1)
-        INSERT INTO orders(date_placed,total,ordered_by,tax_rate,card_user,card_number,zip,country,state,city,street_address)
+        INSERT INTO orders(
+            date_placed,
+            total,
+            ordered_by,
+            card_user,
+            card_number,
+            tax_rate,
+            zip,
+            country,
+            state,
+            city,
+            street_address,
+            expiration_date,
+            csv_code,
+            name_on_card
+        ) 
         VALUES(
             '{datetime.now().isoformat()[:10]}',
             '{order["total"]}',
             '{order["ordered_by"]}',
-            '{TAX_RATE}',
             '{order["ordered_by"]}',
-            (SELECT card_number FROM card_info),
+            '{order["card_number"]}',
+            {TAX_RATE},
             '{order["zip"]}',
             '{order["country"]}',
             '{order["state"]}',
             '{order["city"]}',
-            '{order["street_address"]}'
+            '{order["street_address"]}',
+            '{order["expiration_date"]}',
+            '{order["csv_code"]}',
+            '{order["name_on_card"]}'
         );
         """
         with connection: cursor.execute(query)
@@ -222,18 +185,24 @@ def resolve_getLatestOrder(*_,username):
     try:
         query = f"""
             SELECT
+                ordered_by,
                 zip,
                 country,
                 state,
                 city,
-                street_address
+                street_address,
+                expiration_date,
+                csv_code,
+                card_number,
+                name_on_card
             FROM orders WHERE ordered_by = '{username}'
             ORDER BY order_id DESC
             LIMIT 1
         """
         cursor.execute(query)
         rawResult = cursor.fetchone()
-        keys = ("zip","country","state","city","street_address")
+        if not rawResult: return {}
+        keys = ("ordered_by","zip","country","state","city","street_address","expiration_date","csv_code","card_number","name_on_card")
         formatedResult = dict(zip(keys,rawResult))
         return formatedResult
     except Exception as e:

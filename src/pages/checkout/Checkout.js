@@ -41,7 +41,7 @@ export const Checkout = () => {
   const [paymentInfo, setPaymentInfo] = React.useState(null);
   const [orderId, setOrderId] = React.useState(null);
   React.useEffect(() => axios.post(GRAPHQL_SERVER,{query:query})
-      .then(result => setPaymentInfo({...result.data.data.getPaymentInfo, ...result.data.data.getLatestOrder}))
+      .then(result => setPaymentInfo(result.data.data.getLatestOrder))
       .catch(error => console.error(error)),[]);
   const getStepContent = (step,paymentInfo,setPaymentInfo) => {
     const props = {
@@ -89,16 +89,6 @@ export const Checkout = () => {
       case 2:
         const query = `
           mutation {
-            storePaymentInfo(
-              paymentInfo: {
-              owned_by: "${username}"
-              card_number: "${paymentInfo.card_number}"
-              expiration_date: "${paymentInfo.expiration_date}"
-              csv_code: "${paymentInfo.csv_code}"
-              name_on_card: "${paymentInfo.name_on_card}"
-            }
-            ){success message}
-
             storeOrder(order:
             {
               ordered_by:"${username}"
@@ -109,6 +99,10 @@ export const Checkout = () => {
               state: "${paymentInfo.state}"
               city: "${paymentInfo.city}"
               street_address: "${paymentInfo.street_address}"
+              card_number: "${paymentInfo.card_number}"
+              expiration_date: "${paymentInfo.expiration_date}"
+              csv_code: "${paymentInfo.csv_code}"
+              name_on_card: "${paymentInfo.name_on_card}"
             })
 
             clearCart(username: "${username}") {success}
@@ -127,13 +121,6 @@ export const Checkout = () => {
 
   const query = `
   {
-    getPaymentInfo(username: "${username}")
-      {
-        card_number
-        expiration_date
-        csv_code
-        name_on_card
-      }
       getLatestOrder(username: "${username}")
       {
         zip
@@ -141,6 +128,10 @@ export const Checkout = () => {
         state
         city
         street_address
+        card_number
+        expiration_date
+        csv_code
+        name_on_card
       }
   }`;
   return (
